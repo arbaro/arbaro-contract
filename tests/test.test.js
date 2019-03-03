@@ -33,8 +33,7 @@ describe(`contract`, () => {
   });
 
   test(`contoso can create alice to be a worker`, async () => {
-    // jest.setTimeout(10000);
-    const transaction = await sendTransaction({
+    await sendTransaction({
       name: `createworker`,
       data: {
         worker: ALICE_NAME,
