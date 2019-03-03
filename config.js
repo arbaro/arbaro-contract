@@ -28,7 +28,15 @@ const {
   CONTRACT_PRIVATE_KEY,
   EOS_HTTP_ENDPOINT,
   EOS_CHAIN_ID,
-  EOSIO_PRIVATE_KEY // used in dev only
+  EOSIO_PRIVATE_KEY, // used in dev only
+  ALICE_ACTIVE_PRIVATE_KEY,
+  BOB_ACTIVE_PRIVATE_KEY,
+  CHARLIE_ACTIVE_PRIVATE_KEY,
+  CONTOSO_ACTIVE_PRIVATE_KEY,
+  ALICE_NAME,
+  BOB_NAME,
+  CHARLIE_NAME,
+  CONTOSO_NAME
 } = loadEnvironmentVars();
 
 function getKeys() {
@@ -40,10 +48,10 @@ function getKeys() {
   const keys = mapValues(
     {
       [CONTRACT_ACCOUNT]: contractPrivate,
-      alice: ecc.seedPrivate(`test1`),
-      bob: ecc.seedPrivate(`test1`),
-      charlie: ecc.seedPrivate(`test1`),
-      contoso: ecc.seedPrivate(`test1`)
+      [ALICE_NAME]: ALICE_ACTIVE_PRIVATE_KEY,
+      [BOB_NAME]: BOB_ACTIVE_PRIVATE_KEY,
+      [CHARLIE_NAME]: CHARLIE_ACTIVE_PRIVATE_KEY,
+      [CONTOSO_NAME]: CONTOSO_ACTIVE_PRIVATE_KEY
     },
     privateKey => [privateKey, ecc.privateToPublic(privateKey)]
   );
