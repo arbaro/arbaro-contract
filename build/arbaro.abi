@@ -1,0 +1,125 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Feb 28 16:41:32 2019",
+    "version": "eosio::abi/1.1",
+    "structs": [
+        {
+            "name": "acceptrole",
+            "base": "",
+            "fields": [
+                {
+                    "name": "worker",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "claimtime",
+            "base": "",
+            "fields": [
+                {
+                    "name": "worker",
+                    "type": "name"
+                },
+                {
+                    "name": "dechours",
+                    "type": "float64"
+                },
+                {
+                    "name": "notes",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "createworker",
+            "base": "",
+            "fields": [
+                {
+                    "name": "worker",
+                    "type": "name"
+                },
+                {
+                    "name": "payrate",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "init",
+            "base": "",
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "name"
+                }
+            ]
+        },
+        {
+            "name": "testreset",
+            "base": "",
+            "fields": []
+        },
+        {
+            "name": "worker",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "name"
+                },
+                {
+                    "name": "payrate",
+                    "type": "uint64"
+                },
+                {
+                    "name": "shares",
+                    "type": "uint64"
+                },
+                {
+                    "name": "roleaccepted",
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "acceptrole",
+            "type": "acceptrole",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "claimtime",
+            "type": "claimtime",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "createworker",
+            "type": "createworker",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "init",
+            "type": "init",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "testreset",
+            "type": "testreset",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [
+        {
+            "name": "workers",
+            "type": "worker",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        }
+    ],
+    "ricardian_clauses": [],
+    "variants": [],
+    "abi_extensions": []
+}
