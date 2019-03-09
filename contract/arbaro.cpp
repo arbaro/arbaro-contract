@@ -26,11 +26,11 @@ void arbaro::testreset()
 {
     require_auth(_self);
 
-    worker_index workersdb(_code, _code.value);
-    auto itr = workersdb.begin();
-    while (itr != workersdb.end())
+    role_index rolesdb(_code, _code.value);
+    auto itr = rolesdb.begin();
+    while (itr != rolesdb.end())
     {
-        itr = workersdb.erase(itr);
+        itr = rolesdb.erase(itr);
     }
 
     org_index orgsdb(_code, _code.value);
@@ -53,8 +53,8 @@ void arbaro::createrole(name org, name worker, name role, uint64_t payrate)
     require_auth(org);
     throwifnotorg(org);
 
-    worker_index workersdb(_code, _code.value);
-    workersdb.emplace(_self, [&](auto &row) {
+    role_index rolesdb(_code, _code.value);
+    rolesdb.emplace(_self, [&](auto &row) {
         row.key = role;
         row.org = org;
         row.worker = worker;
@@ -67,12 +67,12 @@ void arbaro::createrole(name org, name worker, name role, uint64_t payrate)
 void arbaro::acceptrole(name role)
 {
 
-    worker_index workersdb(_code, _code.value);
-    auto iterator = workersdb.find(role.value);
-    eosio_assert(iterator != workersdb.end(), "role does not exist");
+    role_index rolesdb(_code, _code.value);
+    auto iterator = rolesdb.find(role.value);
+    eosio_assert(iterator != rolesdb.end(), "role does not exist");
     require_auth(iterator->worker);
 
-    workersdb.modify(iterator, _self, [&](auto &row) {
+    rolesdb.modify(iterator, _self, [&](auto &row) {
         row.roleaccepted = true;
     });
 }
@@ -80,9 +80,9 @@ void arbaro::acceptrole(name role)
 void arbaro::claimtime(name role, double dechours, string notes)
 {
 
-    worker_index workersdb(_code, _code.value);
-    auto iterator = workersdb.find(role.value);
-    eosio_assert(iterator != workersdb.end(), "role does not exist");
+    role_index rolesdb(_code, _code.value);
+    auto iterator = rolesdb.find(role.value);
+    eosio_assert(iterator != rolesdb.end(), "role does not exist");
     eosio_assert(iterator->roleaccepted == true, "role must be accepted");
     require_auth(iterator->worker);
 
@@ -100,7 +100,7 @@ void arbaro::claimtime(name role, double dechours, string notes)
         std::make_tuple(iterator->worker, asset(reward, iterator2->symbol), string("Work reward")))
         .send();
 
-    workersdb.modify(iterator, iterator->worker, [&](auto &row) {
+    rolesdb.modify(iterator, iterator->worker, [&](auto &row) {
         row.shares += reward;
     });
 

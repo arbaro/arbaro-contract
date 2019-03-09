@@ -8,8 +8,8 @@ const {
   CONTOSO_NAME
 } = process.env;
 
-const getWorker = async name =>
-  getTable("workers")
+const getRole = async name =>
+  getTable("roles")
     .then(res => res.rows)
     .then(rows => rows.find(row => row.key === name));
 
@@ -34,19 +34,18 @@ describe("permissions", () => {
 describe(`contract`, () => {
   beforeAll(async () => {
     jest.setTimeout(20000);
-    // Checks for existing records and then
-    // Destroys all records in the workers table
-    const beforeWorkersTable = await getTable("workers");
+
+    const beforeRolesTable = await getTable("roles");
     const beforeOrgsTable = await getTable("orgs");
-    if (beforeWorkersTable.rows.length > 0 || beforeOrgsTable.rows.length > 0) {
-      console.log("Resetting workers table...");
+    if (beforeRolesTable.rows.length > 0 || beforeOrgsTable.rows.length > 0) {
+      console.log("Resetting roles table...");
       await sendTransaction({ name: `testreset` });
-      const afterWorkersTable = await getTable("workers");
+      const afterRolesTable = await getTable("roles");
       const afterOrgsTable = await getTable("orgs");
       expect(afterOrgsTable.rows).toBeEmpty();
       expect(afterOrgsTable.more).toBeFalse();
-      expect(afterWorkersTable.rows).toBeEmpty();
-      expect(afterWorkersTable.more).toBeFalse();
+      expect(afterRolesTable.rows).toBeEmpty();
+      expect(afterRolesTable.more).toBeFalse();
     }
   });
 
@@ -54,7 +53,7 @@ describe(`contract`, () => {
     jest.setTimeout(20000);
   });
 
-  test("contoso cannot create a worker before creating the orgnisation", async () => {
+  test("contoso cannot create a role before creating the orgnisation", async () => {
     // expect.assertions(1);
     try {
       await sendTransaction({
@@ -97,7 +96,7 @@ describe(`contract`, () => {
     ]);
   });
 
-  test(`contoso can create alice to be a worker`, async () => {
+  test(`contoso can create alice to be a role`, async () => {
     await sendTransaction({
       name: `createrole`,
       data: {
@@ -108,7 +107,7 @@ describe(`contract`, () => {
       },
       actor: "contoso"
     });
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toEqual([
       {
         key: "dev1",
@@ -121,7 +120,7 @@ describe(`contract`, () => {
     ]);
   });
 
-  test("contoso can create bob to be a worker", async () => {
+  test("contoso can create bob to be a role", async () => {
     await sendTransaction({
       name: "createrole",
       data: {
@@ -133,7 +132,7 @@ describe(`contract`, () => {
       actor: CONTOSO_NAME
     });
 
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toEqual([
       {
         key: "dev1",
@@ -178,7 +177,7 @@ describe(`contract`, () => {
       actor: ALICE_NAME
     });
 
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toEqual([
       {
         key: "dev1",
@@ -210,7 +209,7 @@ describe(`contract`, () => {
       actor: "alice"
     });
 
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toEqual([
       {
         key: "dev1",
@@ -260,7 +259,7 @@ describe(`contract`, () => {
       actor: BOB_NAME
     });
 
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toContainEqual({
       key: "dev2",
       worker: BOB_NAME,
@@ -282,7 +281,7 @@ describe(`contract`, () => {
       },
       actor: BOB_NAME
     });
-    const tableResult = await getTable("workers");
+    const tableResult = await getTable("roles");
     expect(tableResult.rows).toContainEqual({
       key: "dev2",
       worker: BOB_NAME,
@@ -304,11 +303,11 @@ describe(`contract`, () => {
       },
       actor: BOB_NAME
     });
-    const { shares } = await getWorker("dev2");
+    const { shares } = await getRole("dev2");
     expect(shares).toBeGreaterThan(1360000);
   });
 
-  test("no one but the contract account can create workers", async () => {
+  test("no one but the contract account can create roles", async () => {
     expect.assertions(1);
     try {
       await sendTransaction({

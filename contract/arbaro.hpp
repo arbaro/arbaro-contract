@@ -27,7 +27,7 @@ CONTRACT arbaro : public eosio::contract
     void throwifnotorg(eosio::name org);
 
   private:
-    TABLE worker
+    TABLE role
     {
         eosio::name key;
         eosio::name org;
@@ -39,8 +39,8 @@ CONTRACT arbaro : public eosio::contract
         uint64_t primary_key() const { return key.value; }
     };
 
-    typedef eosio::multi_index<"workers"_n, worker>
-        worker_index;
+    typedef eosio::multi_index<"roles"_n, role>
+        role_index;
 
     TABLE org
     {
