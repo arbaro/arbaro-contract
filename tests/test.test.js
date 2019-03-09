@@ -36,13 +36,17 @@ describe(`contract`, () => {
     jest.setTimeout(20000);
     // Checks for existing records and then
     // Destroys all records in the workers table
-    const { rows } = await getTable("workers");
-    if (rows.length > 0) {
-      console.log("Resetting contract...");
+    const beforeWorkersTable = await getTable("workers");
+    const beforeOrgsTable = await getTable("orgs");
+    if (beforeWorkersTable.rows.length > 0 || beforeOrgsTable.rows.length > 0) {
+      console.log("Resetting workers table...");
       await sendTransaction({ name: `testreset` });
-      const { rows, more } = await getTable("workers");
-      expect(rows).toBeEmpty();
-      expect(more).toBeFalse();
+      const afterWorkersTable = await getTable("workers");
+      const afterOrgsTable = await getTable("orgs");
+      expect(afterOrgsTable.rows).toBeEmpty();
+      expect(afterOrgsTable.more).toBeFalse();
+      expect(afterWorkersTable.rows).toBeEmpty();
+      expect(afterWorkersTable.more).toBeFalse();
     }
   });
 
@@ -76,7 +80,7 @@ describe(`contract`, () => {
       data: {
         owner: CONTOSO_NAME,
         orgname: "contoso",
-        tokensym: "cont",
+        tokensym: "4,CONT",
         tokencon: "arbtoken"
       },
       actor: CONTOSO_NAME
@@ -86,7 +90,7 @@ describe(`contract`, () => {
     expect(tableResult.rows).toEqual([
       {
         key: "contoso",
-        symbol: "cont",
+        symbol: "4,CONT",
         manager: "contoso",
         tokencon: "arbtoken"
       }

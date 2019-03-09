@@ -92,13 +92,12 @@ void arbaro::claimtime(name role, double dechours, string notes)
 
     uint64_t reward = dechours * iterator->payrate * 10000;
     name cont = iterator2->tokencon;
-    string sym = iterator2->symbol.to_string();
 
     action(
         permission_level{"contoso"_n, "active"_n},
         iterator2->tokencon,
         "issue"_n,
-        std::make_tuple(iterator->worker, asset(reward, symbol(symbol_code(sym), 4)), string("Work reward")))
+        std::make_tuple(iterator->worker, asset(reward, iterator2->symbol), string("Work reward")))
         .send();
 
     workersdb.modify(iterator, iterator->worker, [&](auto &row) {
@@ -108,7 +107,7 @@ void arbaro::claimtime(name role, double dechours, string notes)
     print("Awarded ", reward, " shares.");
 }
 
-void arbaro::createorg(name owner, name orgname, name tokensym, name tokencon)
+void arbaro::createorg(name owner, name orgname, symbol tokensym, name tokencon)
 {
 
     require_auth(owner);
