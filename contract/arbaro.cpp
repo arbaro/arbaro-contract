@@ -83,7 +83,7 @@ void arbaro::claimtime(name role, double dechours, string notes)
     role_index rolesdb(_code, _code.value);
     auto iterator = rolesdb.find(role.value);
     eosio_assert(iterator != rolesdb.end(), "role does not exist");
-    eosio_assert(iterator->roleaccepted == true, "role must be accepted");
+    eosio_assert(iterator->roleaccepted, "role must be accepted");
     require_auth(iterator->worker);
 
     org_index orgsdb(_code, _code.value);
