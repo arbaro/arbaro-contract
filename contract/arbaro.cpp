@@ -103,8 +103,6 @@ void arbaro::claimtime(name role, double dechours, string notes)
     rolesdb.modify(iterator, iterator->worker, [&](auto &row) {
         row.shares += reward;
     });
-
-    print("Awarded ", reward, " shares.");
 }
 
 void arbaro::createorg(name owner, name orgname, symbol tokensym, name tokencon)
