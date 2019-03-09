@@ -34,27 +34,31 @@ describe("permissions", () => {
 describe(`contract`, () => {
   beforeAll(async () => {
     jest.setTimeout(20000);
-
-    const beforeRolesTable = await getTable("roles");
-    const beforeOrgsTable = await getTable("orgs");
-    if (beforeRolesTable.rows.length > 0 || beforeOrgsTable.rows.length > 0) {
+    expect.assertions(5);
+    let rolesTable = await getTable("roles");
+    let orgsTable = await getTable("orgs");
+    if (rolesTable.rows.length > 0 || orgsTable.rows.length > 0) {
       console.log("Resetting roles table...");
       await sendTransaction({ name: `testreset` });
-      const afterRolesTable = await getTable("roles");
-      const afterOrgsTable = await getTable("orgs");
-      expect(afterOrgsTable.rows).toBeEmpty();
-      expect(afterOrgsTable.more).toBeFalse();
-      expect(afterRolesTable.rows).toBeEmpty();
-      expect(afterRolesTable.more).toBeFalse();
+      rolesTable = await getTable("roles");
+      orgsTable = await getTable("orgs");
     }
+    expect(orgsTable.rows).toBeEmpty();
+    expect(orgsTable.more).toBeFalse();
+    expect(rolesTable.rows).toBeEmpty();
+    expect(rolesTable.more).toBeFalse();
   });
 
   beforeEach(() => {
     jest.setTimeout(20000);
   });
 
+  test("assertion count bug", () => {
+    expect(true).toBe(true);
+  });
+
   test("contoso cannot create a role before creating the orgnisation", async () => {
-    // expect.assertions(1);
+    expect.assertions(1);
     try {
       await sendTransaction({
         name: `createrole`,
