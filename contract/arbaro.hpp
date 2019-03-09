@@ -19,15 +19,19 @@ CONTRACT arbaro : public eosio::contract
 
     ACTION init(eosio::name name);
     ACTION testreset();
-    ACTION createworker(eosio::name worker, uint64_t payrate);
-    ACTION acceptrole(eosio::name worker);
-    ACTION claimtime(eosio::name worker, double dechours, std::string notes);
+    ACTION createrole(eosio::name org, eosio::name worker, eosio::name role, uint64_t payrate);
+    ACTION acceptrole(eosio::name role);
+    ACTION claimtime(eosio::name role, double dechours, std::string notes);
+    ACTION createorg(eosio::name owner, eosio::name orgname, eosio::name tokensym, eosio::name tokencon);
     void transfer(eosio::name from, eosio::name to, eosio::asset quantity, std::string memo);
+    void throwifnotorg(eosio::name org);
 
   private:
     TABLE worker
     {
         eosio::name key;
+        eosio::name org;
+        eosio::name worker;
         uint64_t payrate;
         uint64_t shares;
         bool roleaccepted;
@@ -37,4 +41,17 @@ CONTRACT arbaro : public eosio::contract
 
     typedef eosio::multi_index<"workers"_n, worker>
         worker_index;
+
+    TABLE org
+    {
+        eosio::name key;
+        eosio::name symbol;
+        eosio::name manager;
+        eosio::name tokencon;
+
+        uint64_t primary_key() const { return key.value; }
+    };
+
+    typedef eosio::multi_index<"orgs"_n, org>
+        org_index;
 };

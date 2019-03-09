@@ -25,51 +25,100 @@ void arbaro::transfer(name from, name to, asset quantity, string memo)
 void arbaro::testreset()
 {
     require_auth(_self);
+
     worker_index workersdb(_code, _code.value);
     auto itr = workersdb.begin();
     while (itr != workersdb.end())
     {
         itr = workersdb.erase(itr);
     }
+
+    org_index orgsdb(_code, _code.value);
+    auto itr2 = orgsdb.begin();
+    while (itr2 != orgsdb.end())
+    {
+        itr2 = orgsdb.erase(itr2);
+    }
 }
 
-void arbaro::createworker(name worker, uint64_t payrate)
+void arbaro::throwifnotorg(name org)
 {
-    require_auth(_self);
+    org_index orgsdb(_code, _code.value);
+    auto iterator = orgsdb.find(org.value);
+    eosio_assert(iterator != orgsdb.end(), "organisation does not exist");
+}
+
+void arbaro::createrole(name org, name worker, name role, uint64_t payrate)
+{
+    require_auth(org);
+    throwifnotorg(org);
+
     worker_index workersdb(_code, _code.value);
     workersdb.emplace(_self, [&](auto &row) {
-        row.key = worker;
+        row.key = role;
+        row.org = org;
+        row.worker = worker;
         row.payrate = payrate;
         row.roleaccepted = false;
         row.shares = 0;
     });
 };
 
-void arbaro::acceptrole(name worker)
+void arbaro::acceptrole(name role)
 {
-    require_auth(worker);
+
     worker_index workersdb(_code, _code.value);
-    auto iterator = workersdb.find(worker.value);
-    eosio_assert(iterator != workersdb.end(), "worker does not exist");
+    auto iterator = workersdb.find(role.value);
+    eosio_assert(iterator != workersdb.end(), "role does not exist");
+    require_auth(iterator->worker);
+
     workersdb.modify(iterator, _self, [&](auto &row) {
         row.roleaccepted = true;
     });
 }
 
-void arbaro::claimtime(name worker, double dechours, string notes)
+void arbaro::claimtime(name role, double dechours, string notes)
 {
-    require_auth(worker);
-    worker_index workersdb(_code, _code.value);
-    auto iterator = workersdb.find(worker.value);
-    eosio_assert(iterator != workersdb.end(), "you must be a worker to enter time");
-    eosio_assert(iterator->roleaccepted == true, "role must be accepted");
 
-    uint64_t reward = dechours * iterator->payrate;
-    workersdb.modify(iterator, worker, [&](auto &row) {
+    worker_index workersdb(_code, _code.value);
+    auto iterator = workersdb.find(role.value);
+    eosio_assert(iterator != workersdb.end(), "role does not exist");
+    eosio_assert(iterator->roleaccepted == true, "role must be accepted");
+    require_auth(iterator->worker);
+
+    org_index orgsdb(_code, _code.value);
+    auto iterator2 = orgsdb.find(iterator->org.value);
+    eosio_assert(iterator2 != orgsdb.end(), "org does not exist");
+
+    uint64_t reward = dechours * iterator->payrate * 10000;
+    name cont = iterator2->tokencon;
+    string sym = iterator2->symbol.to_string();
+
+    action(
+        permission_level{"contoso"_n, "active"_n},
+        iterator2->tokencon,
+        "issue"_n,
+        std::make_tuple(iterator->worker, asset(reward, symbol(symbol_code(sym), 4)), string("Work reward")))
+        .send();
+
+    workersdb.modify(iterator, iterator->worker, [&](auto &row) {
         row.shares += reward;
     });
 
     print("Awarded ", reward, " shares.");
+}
+
+void arbaro::createorg(name owner, name orgname, name tokensym, name tokencon)
+{
+
+    require_auth(owner);
+    org_index orgsdb(_code, _code.value);
+    orgsdb.emplace(owner, [&](auto &row) {
+        row.key = orgname;
+        row.manager = owner;
+        row.symbol = tokensym;
+        row.tokencon = tokencon;
+    });
 }
 
 extern "C" void apply(uint64_t receiver, uint64_t code, uint64_t action)
@@ -82,7 +131,7 @@ extern "C" void apply(uint64_t receiver, uint64_t code, uint64_t action)
     {
         switch (action)
         {
-            EOSIO_DISPATCH_HELPER(arbaro, (init)(testreset)(createworker)(acceptrole)(claimtime))
+            EOSIO_DISPATCH_HELPER(arbaro, (init)(testreset)(createrole)(acceptrole)(claimtime)(createorg))
         }
     }
 }

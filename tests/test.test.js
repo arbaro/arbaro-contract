@@ -1,4 +1,4 @@
-const { sendTransaction, getTable } = require(`../utils`);
+const { sendTransaction, getTable, getAccount } = require(`../utils`);
 
 const {
   CONTRACT_ACCOUNT,
@@ -12,6 +12,24 @@ const getWorker = async name =>
   getTable("workers")
     .then(res => res.rows)
     .then(rows => rows.find(row => row.key === name));
+
+describe("permissions", () => {
+  test("contoso has included arbaro in its permissions", async () => {
+    const contosoAccount = await getAccount(CONTOSO_NAME);
+
+    const active = contosoAccount.permissions.find(
+      perm => perm.perm_name === "active"
+    );
+    const accounts = active.required_auth.accounts;
+    expect(accounts).toContainEqual({
+      permission: {
+        actor: "arbaro",
+        permission: "active"
+      },
+      weight: 1
+    });
+  });
+});
 
 describe(`contract`, () => {
   beforeAll(async () => {
@@ -32,18 +50,66 @@ describe(`contract`, () => {
     jest.setTimeout(20000);
   });
 
+  test("contoso cannot create a worker before creating the orgnisation", async () => {
+    // expect.assertions(1);
+    try {
+      await sendTransaction({
+        name: `createrole`,
+        data: {
+          worker: ALICE_NAME,
+          org: "contoso",
+          role: "dev1",
+          payrate: 25
+        },
+        actor: "contoso"
+      });
+    } catch (e) {
+      expect(e.message).toBe(
+        "assertion failure with message: organisation does not exist"
+      );
+    }
+  });
+
+  test("contoso can create its own orgnaisation", async () => {
+    await sendTransaction({
+      name: "createorg",
+      data: {
+        owner: CONTOSO_NAME,
+        orgname: "contoso",
+        tokensym: "cont",
+        tokencon: "arbtoken"
+      },
+      actor: CONTOSO_NAME
+    });
+
+    const tableResult = await getTable("orgs");
+    expect(tableResult.rows).toEqual([
+      {
+        key: "contoso",
+        symbol: "cont",
+        manager: "contoso",
+        tokencon: "arbtoken"
+      }
+    ]);
+  });
+
   test(`contoso can create alice to be a worker`, async () => {
     await sendTransaction({
-      name: `createworker`,
+      name: `createrole`,
       data: {
         worker: ALICE_NAME,
+        org: "contoso",
+        role: "dev1",
         payrate: 25
-      }
+      },
+      actor: "contoso"
     });
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toEqual([
       {
-        key: ALICE_NAME,
+        key: "dev1",
+        org: "contoso",
+        worker: ALICE_NAME,
         payrate: 25,
         shares: 0,
         roleaccepted: 0
@@ -53,23 +119,30 @@ describe(`contract`, () => {
 
   test("contoso can create bob to be a worker", async () => {
     await sendTransaction({
-      name: "createworker",
+      name: "createrole",
       data: {
         worker: BOB_NAME,
+        org: "contoso",
+        role: "dev2",
         payrate: 30
-      }
+      },
+      actor: CONTOSO_NAME
     });
 
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toEqual([
       {
-        key: ALICE_NAME,
+        key: "dev1",
+        worker: ALICE_NAME,
+        org: "contoso",
         payrate: 25,
         shares: 0,
         roleaccepted: 0
       },
       {
-        key: BOB_NAME,
+        key: "dev2",
+        worker: BOB_NAME,
+        org: "contoso",
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -83,7 +156,7 @@ describe(`contract`, () => {
       await sendTransaction({
         name: "acceptrole",
         data: {
-          worker: BOB_NAME
+          role: "dev2"
         },
         actor: ALICE_NAME
       });
@@ -96,7 +169,7 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "acceptrole",
       data: {
-        worker: ALICE_NAME
+        role: "dev1"
       },
       actor: ALICE_NAME
     });
@@ -104,13 +177,17 @@ describe(`contract`, () => {
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toEqual([
       {
-        key: ALICE_NAME,
+        key: "dev1",
+        org: "contoso",
+        worker: ALICE_NAME,
         payrate: 25,
         shares: 0,
         roleaccepted: 1
       },
       {
-        key: BOB_NAME,
+        key: "dev2",
+        org: "contoso",
+        worker: BOB_NAME,
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -122,23 +199,27 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "claimtime",
       data: {
-        worker: ALICE_NAME,
+        role: "dev1",
         dechours: 3,
         notes: "Created a super sweet API!"
       },
-      actor: ALICE_NAME
+      actor: "alice"
     });
 
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toEqual([
       {
-        key: ALICE_NAME,
+        key: "dev1",
+        worker: ALICE_NAME,
+        org: "contoso",
         payrate: 25,
-        shares: 75,
+        shares: 750000,
         roleaccepted: 1
       },
       {
-        key: BOB_NAME,
+        key: "dev2",
+        worker: BOB_NAME,
+        org: "contoso",
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -153,7 +234,7 @@ describe(`contract`, () => {
         name: "claimtime",
         data: {
           dechours: 2,
-          worker: BOB_NAME,
+          role: "dev2",
           notes: "Jumped the gun!"
         },
         actor: BOB_NAME
@@ -170,14 +251,16 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "acceptrole",
       data: {
-        worker: BOB_NAME
+        role: "dev2"
       },
       actor: BOB_NAME
     });
 
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toContainEqual({
-      key: BOB_NAME,
+      key: "dev2",
+      worker: BOB_NAME,
+      org: "contoso",
       payrate: 30,
       shares: 0,
       roleaccepted: 1
@@ -190,16 +273,18 @@ describe(`contract`, () => {
       name: "claimtime",
       data: {
         dechours: 4.5,
-        worker: BOB_NAME,
+        role: "dev2",
         notes: "Did things and the stuff."
       },
       actor: BOB_NAME
     });
     const tableResult = await getTable("workers");
     expect(tableResult.rows).toContainEqual({
-      key: BOB_NAME,
+      key: "dev2",
+      worker: BOB_NAME,
+      org: "contoso",
       payrate: 30,
-      shares: 135,
+      shares: 1350000,
       roleaccepted: 1
     });
   });
@@ -210,23 +295,25 @@ describe(`contract`, () => {
       name: "claimtime",
       data: {
         dechours: 0.058333333333333334,
-        worker: BOB_NAME,
+        role: "dev2",
         notes: "Did things and the stuff."
       },
       actor: BOB_NAME
     });
-    const { shares } = await getWorker(BOB_NAME);
-    expect(shares).toBe(136);
+    const { shares } = await getWorker("dev2");
+    expect(shares).toBeGreaterThan(1360000);
   });
 
   test("no one but the contract account can create workers", async () => {
     expect.assertions(1);
     try {
       await sendTransaction({
-        name: "createworker",
+        name: "createrole",
         data: {
-          worker: `randomperson`,
-          payrate: 100
+          worker: ALICE_NAME,
+          org: "contoso",
+          role: "dev1",
+          payrate: 25
         },
         actor: CHARLIE_NAME
       });

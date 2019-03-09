@@ -5,13 +5,14 @@ const { CONTRACT_ACCOUNT } = process.env;
 async function action() {
   try {
     const transaction = await sendTransaction({
-      name: `claimtime`,
+      name: `createorg`,
       actor: CONTRACT_ACCOUNT,
       data: {
-        worker: `alice`,
-        dechours: 2,
-        notes: `notes`
-      }
+        owner: `alice`,
+        orgname: `wasting`,
+        tokensym: `tokensym`
+      },
+      actor: "alice"
     });
     console.log(`SUCCESS`);
     console.log(

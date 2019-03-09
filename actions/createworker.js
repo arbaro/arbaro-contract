@@ -8,8 +8,9 @@ async function action() {
             name: `createworker`,
             actor: CONTRACT_ACCOUNT,
             data: {
+                org: `org`,
                 worker: `worker`,
-                payrate: 154,
+                payrate: 543,
             },
         })
         console.log(`SUCCESS`)

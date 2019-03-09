@@ -56,6 +56,8 @@ const getTable = async (tableName, scope = CONTRACT_ACCOUNT) => {
   });
 };
 
+const getAccount = async accountName => api.rpc.get_account(accountName);
+
 function getErrorDetail(exception) {
   if (exception instanceof RpcError)
     return JSON.stringify(exception.json, null, 2);
@@ -79,6 +81,7 @@ function getDeployableFilesFromDir(dir) {
 module.exports = {
   sendTransaction,
   getTable,
+  getAccount,
   getErrorDetail,
   getDeployableFilesFromDir
 };
