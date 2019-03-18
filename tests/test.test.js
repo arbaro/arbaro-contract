@@ -82,9 +82,9 @@ describe(`contract`, () => {
       name: "createorg",
       data: {
         owner: CONTOSO_NAME,
-        orgname: "contoso",
         tokensym: "4,CONT",
-        tokencon: "arbtoken"
+        tokencon: "arbtoken",
+        friendlyname: "Contoso Enterprises"
       },
       actor: CONTOSO_NAME
     });
@@ -94,7 +94,6 @@ describe(`contract`, () => {
       {
         key: "contoso",
         symbol: "4,CONT",
-        manager: "contoso",
         tokencon: "arbtoken"
       }
     ]);
@@ -322,7 +321,7 @@ describe(`contract`, () => {
           role: "dev1",
           payrate: 25
         },
-        actor: CHARLIE_NAME
+        actor: ALICE_NAME
       });
     } catch (e) {
       expect(e.message).toContain("missing authority of");

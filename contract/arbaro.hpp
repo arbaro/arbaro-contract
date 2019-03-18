@@ -22,7 +22,7 @@ CONTRACT arbaro : public eosio::contract
     ACTION createrole(eosio::name org, eosio::name worker, eosio::name role, uint64_t payrate);
     ACTION acceptrole(eosio::name role);
     ACTION claimtime(eosio::name role, double dechours, std::string notes);
-    ACTION createorg(eosio::name owner, eosio::name orgname, eosio::symbol tokensym, eosio::name tokencon);
+    ACTION createorg(eosio::name owner, eosio::symbol tokensym, eosio::name tokencon, std::string friendlyname);
     void transfer(eosio::name from, eosio::name to, eosio::asset quantity, std::string memo);
     void throwifnotorg(eosio::name org);
 
@@ -46,7 +46,6 @@ CONTRACT arbaro : public eosio::contract
     {
         eosio::name key;
         eosio::symbol symbol;
-        eosio::name manager;
         eosio::name tokencon;
 
         uint64_t primary_key() const { return key.value; }

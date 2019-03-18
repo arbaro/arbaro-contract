@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Mar  9 13:10:59 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 18 12:55:31 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -39,16 +39,16 @@
                     "type": "name"
                 },
                 {
-                    "name": "orgname",
-                    "type": "name"
-                },
-                {
                     "name": "tokensym",
                     "type": "symbol"
                 },
                 {
                     "name": "tokencon",
                     "type": "name"
+                },
+                {
+                    "name": "friendlyname",
+                    "type": "string"
                 }
             ]
         },
@@ -95,10 +95,6 @@
                 {
                     "name": "symbol",
                     "type": "symbol"
-                },
-                {
-                    "name": "manager",
-                    "type": "name"
                 },
                 {
                     "name": "tokencon",

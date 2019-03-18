@@ -105,14 +105,13 @@ void arbaro::claimtime(name role, double dechours, string notes)
     });
 }
 
-void arbaro::createorg(name owner, name orgname, symbol tokensym, name tokencon)
+void arbaro::createorg(name owner, symbol tokensym, name tokencon, string friendlyname)
 {
 
     require_auth(owner);
     org_index orgsdb(_code, _code.value);
     orgsdb.emplace(owner, [&](auto &row) {
-        row.key = orgname;
-        row.manager = owner;
+        row.key = owner;
         row.symbol = tokensym;
         row.tokencon = tokencon;
     });

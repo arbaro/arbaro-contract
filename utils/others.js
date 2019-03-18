@@ -43,6 +43,19 @@ const sendTransaction = async args => {
   );
 };
 
+const getOrganisation = async orgName => {
+  return api.rpc.get_table_rows({
+    json: true,
+    code: CONTRACT_ACCOUNT,
+    scope,
+    table: tableName,
+    lower_bound: 0,
+    upper_bound: -1,
+    limit: 9999,
+    index_position: 1
+  });
+};
+
 const getTable = async (tableName, scope = CONTRACT_ACCOUNT) => {
   return await api.rpc.get_table_rows({
     json: true,
