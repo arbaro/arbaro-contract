@@ -5,10 +5,13 @@ const { CONTRACT_ACCOUNT } = process.env
 async function action() {
     try {
         const transaction = await sendTransaction({
-            name: `acceptrole`,
+            name: `createrole`,
             actor: CONTRACT_ACCOUNT,
             data: {
+                org: `org`,
+                worker: `worker`,
                 role: `role`,
+                payrate: 100,
             },
         })
         console.log(`SUCCESS`)

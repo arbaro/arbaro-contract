@@ -6,10 +6,10 @@ async function action() {
   try {
     const transaction = await sendTransaction({
       name: `claimtime`,
-      actor: CONTRACT_ACCOUNT,
+      actor: "alice",
       data: {
-        worker: `alice`,
-        dechours: 2,
+        role: `dev2`,
+        dechours: 2.5,
         notes: `notes`
       }
     });

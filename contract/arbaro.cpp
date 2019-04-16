@@ -54,7 +54,7 @@ void arbaro::createrole(name org, name worker, name role, uint64_t payrate)
     throwifnotorg(org);
 
     role_index rolesdb(_code, _code.value);
-    rolesdb.emplace(_self, [&](auto &row) {
+    rolesdb.emplace(org, [&](auto &row) {
         row.key = role;
         row.org = org;
         row.worker = worker;
@@ -92,9 +92,10 @@ void arbaro::claimtime(name role, double dechours, string notes)
 
     uint64_t reward = dechours * iterator->payrate * 10000;
     name cont = iterator2->tokencon;
+    name issuer = iterator2->key;
 
     action(
-        permission_level{"contoso"_n, "active"_n},
+        permission_level{issuer, "active"_n},
         iterator2->tokencon,
         "issue"_n,
         std::make_tuple(iterator->worker, asset(reward, iterator2->symbol), string("Work reward")))

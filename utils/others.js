@@ -69,6 +69,25 @@ const getTable = async (tableName, scope = CONTRACT_ACCOUNT) => {
   });
 };
 
+const getBalance = async (
+  accountName,
+  symbol = "EOS",
+  tokenContract = "arbtoken"
+) => {
+  const result = await api.rpc.get_currency_balance(
+    tokenContract,
+    accountName,
+    symbol
+  );
+
+  if (result.length === 1) {
+    const amount = result[0].split(" ")[0];
+    return Number(amount);
+  } else {
+    return result;
+  }
+};
+
 const getAccount = async accountName => api.rpc.get_account(accountName);
 
 function getErrorDetail(exception) {
@@ -94,6 +113,7 @@ function getDeployableFilesFromDir(dir) {
 module.exports = {
   sendTransaction,
   getTable,
+  getBalance,
   getAccount,
   getErrorDetail,
   getDeployableFilesFromDir

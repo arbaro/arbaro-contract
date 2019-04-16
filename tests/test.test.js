@@ -1,4 +1,9 @@
-const { sendTransaction, getTable, getAccount } = require(`../utils`);
+const {
+  sendTransaction,
+  getTable,
+  getAccount,
+  getBalance
+} = require(`../utils`);
 
 const {
   CONTRACT_ACCOUNT,
@@ -202,6 +207,8 @@ describe(`contract`, () => {
   });
 
   test("Alice can enter time and be awarded correct amount of shares", async () => {
+    const beforeBalance = await getBalance("alice", "CONT");
+
     await sendTransaction({
       name: "claimtime",
       data: {
@@ -211,6 +218,11 @@ describe(`contract`, () => {
       },
       actor: "alice"
     });
+
+    const afterBalance = await getBalance("alice", "CONT");
+
+    expect(afterBalance).toBeGreaterThan(beforeBalance);
+    expect(afterBalance).toBe(beforeBalance + 75);
 
     const tableResult = await getTable("roles");
     expect(tableResult.rows).toEqual([
@@ -274,7 +286,9 @@ describe(`contract`, () => {
   });
 
   test("bob can enter time", async () => {
-    expect.assertions(1);
+    const beforeBalance = await getBalance("bob", "CONT");
+
+    expect.assertions(3);
     await sendTransaction({
       name: "claimtime",
       data: {
@@ -284,6 +298,12 @@ describe(`contract`, () => {
       },
       actor: BOB_NAME
     });
+
+    const afterBalance = await getBalance("bob", "CONT");
+
+    expect(afterBalance).toBeGreaterThan(beforeBalance);
+    expect(afterBalance).toBe(beforeBalance + 135);
+
     const tableResult = await getTable("roles");
     expect(tableResult.rows).toContainEqual({
       key: "dev2",

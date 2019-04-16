@@ -45,16 +45,24 @@ function getKeys() {
   const contractPrivate =
     CONTRACT_PRIVATE_KEY || ecc.seedPrivate(CONTRACT_ACCOUNT);
 
-  const keys = mapValues(
-    {
-      [CONTRACT_ACCOUNT]: contractPrivate,
-      [ALICE_NAME]: ALICE_ACTIVE_PRIVATE_KEY,
-      [BOB_NAME]: BOB_ACTIVE_PRIVATE_KEY,
-      [CHARLIE_NAME]: CHARLIE_ACTIVE_PRIVATE_KEY,
-      [CONTOSO_NAME]: CONTOSO_ACTIVE_PRIVATE_KEY
-    },
-    privateKey => [privateKey, ecc.privateToPublic(privateKey)]
-  );
+  const keys =
+    SCRIPT_ENV === "production"
+      ? mapValues(
+          {
+            [CONTRACT_ACCOUNT]: contractPrivate
+          },
+          privateKey => [privateKey, ecc.privateToPublic(privateKey)]
+        )
+      : mapValues(
+          {
+            [CONTRACT_ACCOUNT]: contractPrivate,
+            [ALICE_NAME]: ALICE_ACTIVE_PRIVATE_KEY,
+            [BOB_NAME]: BOB_ACTIVE_PRIVATE_KEY,
+            [CHARLIE_NAME]: CHARLIE_ACTIVE_PRIVATE_KEY,
+            [CONTOSO_NAME]: CONTOSO_ACTIVE_PRIVATE_KEY
+          },
+          privateKey => [privateKey, ecc.privateToPublic(privateKey)]
+        );
 
   if (SCRIPT_ENV === `development`) console.log(keys);
   return keys;
