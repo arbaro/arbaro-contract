@@ -24,7 +24,6 @@ CONTRACT arbaro : public eosio::contract
     ACTION claimtime(eosio::name worker, eosio::name org, uint64_t dechours, std::string notes);
     ACTION createorg(eosio::name owner, eosio::symbol tokensym, eosio::name tokencon, std::string friendlyname);
     void transfer(eosio::name from, eosio::name to, eosio::asset quantity, std::string memo);
-    void throwifnotorg(eosio::name org);
 
   private:
     TABLE role

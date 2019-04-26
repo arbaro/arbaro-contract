@@ -41,12 +41,6 @@ void arbaro::testreset()
     }
 }
 
-void arbaro::throwifnotorg(name org)
-{
-    org_index orgsdb(_code, _code.value);
-    auto iterator = orgsdb.find(org.value);
-    eosio_assert(iterator != orgsdb.end(), "organisation does not exist");
-}
 
 void arbaro::createrole(name org, name worker, asset payrate)
 {
