@@ -4,7 +4,7 @@ const { RpcError } = require(`eosjs`);
 
 const { api } = require(`../config.js`);
 
-const { CONTRACT_ACCOUNT } = process.env;
+const { CONTRACT_ACCOUNT, TOKEN_CONTRACT } = process.env;
 
 const createAction = ({
   account = CONTRACT_ACCOUNT,
@@ -72,7 +72,7 @@ const getTable = async (tableName, scope = CONTRACT_ACCOUNT) => {
 const getBalance = async (
   accountName,
   symbol = "EOS",
-  tokenContract = "arbtoken"
+  tokenContract = TOKEN_CONTRACT
 ) => {
   const result = await api.rpc.get_currency_balance(
     tokenContract,

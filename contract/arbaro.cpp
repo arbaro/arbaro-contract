@@ -22,11 +22,11 @@ void arbaro::transfer(name from, name to, asset quantity, string memo)
     eosio_assert(quantity.symbol == EOS_SYMBOL, "only EOS tokens allowed");
 }
 
-void arbaro::testreset()
+void arbaro::testreset(name org)
 {
     require_auth(_self);
 
-    role_index rolesdb(_code, "contoso"_n.value);
+    role_index rolesdb(_code, org.value);
     auto itr = rolesdb.begin();
     while (itr != rolesdb.end())
     {

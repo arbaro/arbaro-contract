@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 26 14:29:46 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 26 13:07:11 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -131,12 +131,7 @@
         {
             "name": "testreset",
             "base": "",
-            "fields": [
-                {
-                    "name": "org",
-                    "type": "name"
-                }
-            ]
+            "fields": []
         }
     ],
     "types": [],
