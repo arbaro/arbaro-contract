@@ -26,7 +26,7 @@ void arbaro::testreset()
 {
     require_auth(_self);
 
-    role_index rolesdb(_code, _code.value);
+    role_index rolesdb(_code, "contoso"_n.value);
     auto itr = rolesdb.begin();
     while (itr != rolesdb.end())
     {

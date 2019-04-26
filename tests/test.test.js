@@ -13,10 +13,11 @@ const {
   CONTOSO_NAME
 } = process.env;
 
-const getRole = async name =>
-  getTable("roles")
-    .then(res => res.rows)
-    .then(rows => rows.find(row => row.key === name));
+const getRole = async (worker, org) => {
+  const tableResult = await getTable("roles", org)
+  console.log(tableResult.rows)
+  return tableResult.rows.filter(x => x.key == worker)[0]
+}
 
 describe("permissions", () => {
   test("contoso has included arbaro in its permissions", async () => {
@@ -110,17 +111,14 @@ describe(`contract`, () => {
       data: {
         worker: ALICE_NAME,
         org: "contoso",
-        role: "dev1",
         payrate: 25
       },
       actor: "contoso"
     });
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toEqual([
       {
-        key: "dev1",
-        org: "contoso",
-        worker: ALICE_NAME,
+        key: ALICE_NAME,
         payrate: 25,
         shares: 0,
         roleaccepted: 0
@@ -134,26 +132,21 @@ describe(`contract`, () => {
       data: {
         worker: BOB_NAME,
         org: "contoso",
-        role: "dev2",
         payrate: 30
       },
       actor: CONTOSO_NAME
     });
 
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toEqual([
       {
-        key: "dev1",
-        worker: ALICE_NAME,
-        org: "contoso",
+        key: ALICE_NAME,
         payrate: 25,
         shares: 0,
         roleaccepted: 0
       },
       {
-        key: "dev2",
-        worker: BOB_NAME,
-        org: "contoso",
+        key: BOB_NAME,
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -167,7 +160,8 @@ describe(`contract`, () => {
       await sendTransaction({
         name: "acceptrole",
         data: {
-          role: "dev2"
+          worker: BOB_NAME,
+          org: CONTOSO_NAME
         },
         actor: ALICE_NAME
       });
@@ -180,25 +174,22 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "acceptrole",
       data: {
-        role: "dev1"
+        worker: ALICE_NAME,
+        org: CONTOSO_NAME
       },
       actor: ALICE_NAME
     });
 
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toEqual([
       {
-        key: "dev1",
-        org: "contoso",
-        worker: ALICE_NAME,
+        key: ALICE_NAME,
         payrate: 25,
         shares: 0,
         roleaccepted: 1
       },
       {
-        key: "dev2",
-        org: "contoso",
-        worker: BOB_NAME,
+        key: BOB_NAME,
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -212,7 +203,8 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "claimtime",
       data: {
-        role: "dev1",
+        worker: ALICE_NAME,
+        org: CONTOSO_NAME,
         dechours: 3,
         notes: "Created a super sweet API!"
       },
@@ -224,20 +216,16 @@ describe(`contract`, () => {
     expect(afterBalance).toBeGreaterThan(beforeBalance);
     expect(afterBalance).toBe(beforeBalance + 75);
 
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toEqual([
       {
-        key: "dev1",
-        worker: ALICE_NAME,
-        org: "contoso",
+        key: ALICE_NAME,
         payrate: 25,
         shares: 750000,
         roleaccepted: 1
       },
       {
-        key: "dev2",
-        worker: BOB_NAME,
-        org: "contoso",
+        key: BOB_NAME,
         payrate: 30,
         shares: 0,
         roleaccepted: 0
@@ -252,7 +240,8 @@ describe(`contract`, () => {
         name: "claimtime",
         data: {
           dechours: 2,
-          role: "dev2",
+          worker: BOB_NAME,
+          org: CONTOSO_NAME,
           notes: "Jumped the gun!"
         },
         actor: BOB_NAME
@@ -269,16 +258,15 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "acceptrole",
       data: {
-        role: "dev2"
+        worker: BOB_NAME,
+        org: CONTOSO_NAME
       },
       actor: BOB_NAME
     });
 
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
-      key: "dev2",
-      worker: BOB_NAME,
-      org: "contoso",
+      key: BOB_NAME,
       payrate: 30,
       shares: 0,
       roleaccepted: 1
@@ -293,7 +281,8 @@ describe(`contract`, () => {
       name: "claimtime",
       data: {
         dechours: 4.5,
-        role: "dev2",
+        worker: BOB_NAME,
+        org: CONTOSO_NAME,
         notes: "Did things and the stuff."
       },
       actor: BOB_NAME
@@ -304,11 +293,9 @@ describe(`contract`, () => {
     expect(afterBalance).toBeGreaterThan(beforeBalance);
     expect(afterBalance).toBe(beforeBalance + 135);
 
-    const tableResult = await getTable("roles");
+    const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
-      key: "dev2",
-      worker: BOB_NAME,
-      org: "contoso",
+      key: BOB_NAME,
       payrate: 30,
       shares: 1350000,
       roleaccepted: 1
@@ -321,12 +308,13 @@ describe(`contract`, () => {
       name: "claimtime",
       data: {
         dechours: 0.058333333333333334,
-        role: "dev2",
+        worker: BOB_NAME,
+        org: CONTOSO_NAME,
         notes: "Did things and the stuff."
       },
       actor: BOB_NAME
     });
-    const { shares } = await getRole("dev2");
+    const { shares } = await getRole(BOB_NAME, CONTOSO_NAME);
     expect(shares).toBeGreaterThan(1360000);
   });
 
@@ -338,7 +326,6 @@ describe(`contract`, () => {
         data: {
           worker: ALICE_NAME,
           org: "contoso",
-          role: "dev1",
           payrate: 25
         },
         actor: ALICE_NAME

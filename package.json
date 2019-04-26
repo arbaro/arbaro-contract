@@ -15,11 +15,6 @@
   },
   "author": "John Williamson",
   "license": "MIT",
-  "eslintConfig": {
-    "extends": [
-      "cmichel/node"
-    ]
-  },
   "engines": {
     "node": ">=8.0.0"
   },

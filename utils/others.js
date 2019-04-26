@@ -84,7 +84,7 @@ const getBalance = async (
     const amount = result[0].split(" ")[0];
     return Number(amount);
   } else {
-    return result;
+    return 0;
   }
 };
 

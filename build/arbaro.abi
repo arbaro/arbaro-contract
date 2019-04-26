@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Mon Mar 25 14:39:01 2019",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Fri Apr 26 11:59:31 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -7,7 +7,11 @@
             "base": "",
             "fields": [
                 {
-                    "name": "role",
+                    "name": "worker",
+                    "type": "name"
+                },
+                {
+                    "name": "org",
                     "type": "name"
                 }
             ]
@@ -17,7 +21,11 @@
             "base": "",
             "fields": [
                 {
-                    "name": "role",
+                    "name": "worker",
+                    "type": "name"
+                },
+                {
+                    "name": "org",
                     "type": "name"
                 },
                 {
@@ -65,10 +73,6 @@
                     "type": "name"
                 },
                 {
-                    "name": "role",
-                    "type": "name"
-                },
-                {
                     "name": "payrate",
                     "type": "uint64"
                 }
@@ -108,14 +112,6 @@
             "fields": [
                 {
                     "name": "key",
-                    "type": "name"
-                },
-                {
-                    "name": "org",
-                    "type": "name"
-                },
-                {
-                    "name": "worker",
                     "type": "name"
                 },
                 {
