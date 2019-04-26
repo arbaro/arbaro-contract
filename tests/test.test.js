@@ -204,7 +204,7 @@ describe(`contract`, () => {
       data: {
         worker: ALICE_NAME,
         org: CONTOSO_NAME,
-        dechours: 3,
+        minutes: 3,
         notes: "Created a super sweet API!"
       },
       actor: "alice"
@@ -238,7 +238,7 @@ describe(`contract`, () => {
       await sendTransaction({
         name: "claimtime",
         data: {
-          dechours: 2,
+          minutes: 2,
           worker: BOB_NAME,
           org: CONTOSO_NAME,
           notes: "Jumped the gun!"
@@ -279,7 +279,7 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "claimtime",
       data: {
-        dechours: 270,
+        minutes: 270,
         worker: BOB_NAME,
         org: CONTOSO_NAME,
         notes: "Did things and the stuff."
@@ -307,7 +307,7 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "claimtime",
       data: {
-        dechours: 3,
+        minutes: 3,
         worker: BOB_NAME,
         org: CONTOSO_NAME,
         notes: "Did things and the stuff."

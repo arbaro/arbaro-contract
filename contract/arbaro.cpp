@@ -76,7 +76,7 @@ void arbaro::acceptrole(name worker, name org)
     });
 }
 
-void arbaro::claimtime(name worker, name org, uint64_t dechours, string notes)
+void arbaro::claimtime(name worker, name org, uint64_t minutes, string notes)
 {
 
     role_index rolesdb(_code, org.value);
@@ -89,7 +89,7 @@ void arbaro::claimtime(name worker, name org, uint64_t dechours, string notes)
     auto iterator2 = orgsdb.find(org.value);
     eosio_assert(iterator2 != orgsdb.end(), "org does not exist");
 
-    asset reward = dechours * iterator->payrate;
+    asset reward = minutes * iterator->payrate;
     name cont = iterator2->tokencon;
     name issuer = iterator2->key;
 
