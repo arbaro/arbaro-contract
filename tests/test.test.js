@@ -131,7 +131,7 @@ describe(`contract`, () => {
       data: {
         worker: BOB_NAME,
         org: "contoso",
-        payrate: "30.0000 CONT"
+        payrate: "0.5000 CONT"
       },
       actor: CONTOSO_NAME
     });
@@ -146,7 +146,7 @@ describe(`contract`, () => {
       },
       {
         key: BOB_NAME,
-        payrate: "30.0000 CONT",
+        payrate: "0.5000 CONT",
         earned: "0.0000 CONT",
         roleaccepted: 0
       }
@@ -189,7 +189,7 @@ describe(`contract`, () => {
       },
       {
         key: BOB_NAME,
-        payrate: "30.0000 CONT",
+        payrate: "0.5000 CONT",
         earned: "0.0000 CONT",
         roleaccepted: 0
       }
@@ -225,7 +225,7 @@ describe(`contract`, () => {
       },
       {
         key: BOB_NAME,
-        payrate: "30.0000 CONT",
+        payrate: "0.5000 CONT",
         earned: "0.0000 CONT",
         roleaccepted: 0
       }
@@ -266,7 +266,7 @@ describe(`contract`, () => {
     const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
       key: BOB_NAME,
-      payrate: "30.0000 CONT",
+      payrate: "0.5000 CONT",
       earned: "0.0000 CONT",
       roleaccepted: 1
     });
@@ -279,7 +279,7 @@ describe(`contract`, () => {
     await sendTransaction({
       name: "claimtime",
       data: {
-        dechours: 4.5,
+        dechours: 270,
         worker: BOB_NAME,
         org: CONTOSO_NAME,
         notes: "Did things and the stuff."
@@ -290,32 +290,34 @@ describe(`contract`, () => {
     const afterBalance = await getBalance("bob", "CONT");
 
     expect(afterBalance).toBeGreaterThan(beforeBalance);
-    console.log({ beforeBalance, afterBalance })
     expect(afterBalance).toBe(beforeBalance + 135);
 
     const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
       key: BOB_NAME,
-      payrate: "30.0000 CONT",
-      shares: "135.0000 CONT",
+      payrate: "0.5000 CONT",
+      earned: "135.0000 CONT",
       roleaccepted: 1
     });
   });
 
-  test("bob can enter 3 and a half minutes worth of work and be awarded appropriately", async () => {
-    expect.assertions(1);
+  test.only("bob can enter 3 minutes worth of work and be awarded appropriately", async () => {
+    const beforeBalance = await getBalance(BOB_NAME, "CONT");
+    
     await sendTransaction({
       name: "claimtime",
       data: {
-        dechours: 0.058333333333333334,
+        dechours: 3,
         worker: BOB_NAME,
         org: CONTOSO_NAME,
         notes: "Did things and the stuff."
       },
       actor: BOB_NAME
     });
-    const { shares } = await getRole(BOB_NAME, CONTOSO_NAME);
-    expect(shares).toBeGreaterThan(1360000);
+
+    const afterBalance = await getBalance(BOB_NAME, "CONT");
+    expect(afterBalance).toBeGreaterThan(beforeBalance);
+    expect(afterBalance).toBe(beforeBalance + 1.5);
   });
 
   test("no one but the contract account can create roles", async () => {

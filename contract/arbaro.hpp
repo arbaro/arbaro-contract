@@ -21,7 +21,7 @@ CONTRACT arbaro : public eosio::contract
     ACTION testreset();
     ACTION createrole(eosio::name org, eosio::name worker, eosio::asset payrate);
     ACTION acceptrole(eosio::name worker, eosio::name org);
-    ACTION claimtime(eosio::name worker, eosio::name org, double dechours, std::string notes);
+    ACTION claimtime(eosio::name worker, eosio::name org, uint64_t dechours, std::string notes);
     ACTION createorg(eosio::name owner, eosio::symbol tokensym, eosio::name tokencon, std::string friendlyname);
     void transfer(eosio::name from, eosio::name to, eosio::asset quantity, std::string memo);
     void throwifnotorg(eosio::name org);

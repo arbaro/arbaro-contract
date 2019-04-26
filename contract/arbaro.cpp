@@ -82,7 +82,7 @@ void arbaro::acceptrole(name worker, name org)
     });
 }
 
-void arbaro::claimtime(name worker, name org, double dechours, string notes)
+void arbaro::claimtime(name worker, name org, uint64_t dechours, string notes)
 {
 
     role_index rolesdb(_code, org.value);
