@@ -48,46 +48,44 @@ void arbaro::throwifnotorg(name org)
     eosio_assert(iterator != orgsdb.end(), "organisation does not exist");
 }
 
-void arbaro::createrole(name org, name worker, name role, uint64_t payrate)
+void arbaro::createrole(name org, name worker, uint64_t payrate)
 {
     require_auth(org);
     throwifnotorg(org);
 
-    role_index rolesdb(_code, _code.value);
+    role_index rolesdb(_code, org.value);
     rolesdb.emplace(org, [&](auto &row) {
-        row.key = role;
-        row.org = org;
-        row.worker = worker;
+        row.key = worker;
         row.payrate = payrate;
         row.roleaccepted = false;
         row.shares = 0;
     });
 };
 
-void arbaro::acceptrole(name role)
+void arbaro::acceptrole(name worker, name org)
 {
 
-    role_index rolesdb(_code, _code.value);
-    auto iterator = rolesdb.find(role.value);
-    eosio_assert(iterator != rolesdb.end(), "role does not exist");
-    require_auth(iterator->worker);
+    role_index rolesdb(_code, org.value);
+    auto iterator = rolesdb.find(worker.value);
+    eosio_assert(iterator != rolesdb.end(), "worker at this org does not exist");
+    require_auth(iterator->key);
 
     rolesdb.modify(iterator, _self, [&](auto &row) {
         row.roleaccepted = true;
     });
 }
 
-void arbaro::claimtime(name role, double dechours, string notes)
+void arbaro::claimtime(name worker, name org, double dechours, string notes)
 {
 
-    role_index rolesdb(_code, _code.value);
-    auto iterator = rolesdb.find(role.value);
-    eosio_assert(iterator != rolesdb.end(), "role does not exist");
+    role_index rolesdb(_code, org.value);
+    auto iterator = rolesdb.find(worker.value);
+    eosio_assert(iterator != rolesdb.end(), "worker does not exist");
     eosio_assert(iterator->roleaccepted, "role must be accepted");
-    require_auth(iterator->worker);
+    require_auth(iterator->key);
 
     org_index orgsdb(_code, _code.value);
-    auto iterator2 = orgsdb.find(iterator->org.value);
+    auto iterator2 = orgsdb.find(org.value);
     eosio_assert(iterator2 != orgsdb.end(), "org does not exist");
 
     uint64_t reward = dechours * iterator->payrate * 10000;
@@ -98,17 +96,16 @@ void arbaro::claimtime(name role, double dechours, string notes)
         permission_level{issuer, "active"_n},
         iterator2->tokencon,
         "issue"_n,
-        std::make_tuple(iterator->worker, asset(reward, iterator2->symbol), string("Work reward")))
+        std::make_tuple(iterator->key, asset(reward, iterator2->symbol), string("Work reward")))
         .send();
 
-    rolesdb.modify(iterator, iterator->worker, [&](auto &row) {
+    rolesdb.modify(iterator, iterator->key, [&](auto &row) {
         row.shares += reward;
     });
 }
 
 void arbaro::createorg(name owner, symbol tokensym, name tokencon, string friendlyname)
 {
-
     require_auth(owner);
     org_index orgsdb(_code, _code.value);
     orgsdb.emplace(owner, [&](auto &row) {
