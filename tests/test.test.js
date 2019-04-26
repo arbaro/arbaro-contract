@@ -40,7 +40,7 @@ describe("permissions", () => {
 describe(`contract`, () => {
   beforeAll(async () => {
     jest.setTimeout(20000);
-    expect.assertions(5);
+    expect.assertions(4);
     let rolesTable = await getTable("roles");
     let orgsTable = await getTable("orgs");
     if (rolesTable.rows.length > 0 || orgsTable.rows.length > 0) {
@@ -63,7 +63,7 @@ describe(`contract`, () => {
     expect(true).toBe(true);
   });
 
-  test("contoso cannot create a role before creating the orgnisation", async () => {
+  test.only("contoso cannot create a role before creating the orgnisation", async () => {
     expect.assertions(1);
     try {
       await sendTransaction({
@@ -71,19 +71,18 @@ describe(`contract`, () => {
         data: {
           worker: ALICE_NAME,
           org: "contoso",
-          role: "dev1",
-          payrate: 25
+          payrate: "25.0000 CONT"
         },
         actor: "contoso"
       });
     } catch (e) {
       expect(e.message).toBe(
-        "assertion failure with message: organisation does not exist"
+        "assertion failure with message: org does not exist"
       );
     }
   });
 
-  test("contoso can create its own orgnaisation", async () => {
+  test.only("contoso can create its own orgnaisation", async () => {
     await sendTransaction({
       name: "createorg",
       data: {
@@ -105,13 +104,13 @@ describe(`contract`, () => {
     ]);
   });
 
-  test(`contoso can create alice to be a role`, async () => {
+  test.only(`contoso can create alice to be a role`, async () => {
     await sendTransaction({
       name: `createrole`,
       data: {
         worker: ALICE_NAME,
         org: "contoso",
-        payrate: 25
+        payrate: "25.0000 CONT"
       },
       actor: "contoso"
     });
@@ -119,20 +118,20 @@ describe(`contract`, () => {
     expect(tableResult.rows).toEqual([
       {
         key: ALICE_NAME,
-        payrate: 25,
-        shares: 0,
+        payrate: "25.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 0
       }
     ]);
   });
 
-  test("contoso can create bob to be a role", async () => {
+  test.only("contoso can create bob to be a role", async () => {
     await sendTransaction({
       name: "createrole",
       data: {
         worker: BOB_NAME,
         org: "contoso",
-        payrate: 30
+        payrate: "30.0000 CONT"
       },
       actor: CONTOSO_NAME
     });
@@ -141,20 +140,20 @@ describe(`contract`, () => {
     expect(tableResult.rows).toEqual([
       {
         key: ALICE_NAME,
-        payrate: 25,
-        shares: 0,
+        payrate: "25.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 0
       },
       {
         key: BOB_NAME,
-        payrate: 30,
-        shares: 0,
+        payrate: "30.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 0
       }
     ]);
   });
 
-  test("alice cant accept bobs position", async () => {
+  test.only("alice cant accept bobs position", async () => {
     expect.assertions(1);
     try {
       await sendTransaction({
@@ -170,7 +169,7 @@ describe(`contract`, () => {
     }
   });
 
-  test("alice can accept her position", async () => {
+  test.only("alice can accept her position", async () => {
     await sendTransaction({
       name: "acceptrole",
       data: {
@@ -184,20 +183,20 @@ describe(`contract`, () => {
     expect(tableResult.rows).toEqual([
       {
         key: ALICE_NAME,
-        payrate: 25,
-        shares: 0,
+        payrate: "25.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 1
       },
       {
         key: BOB_NAME,
-        payrate: 30,
-        shares: 0,
+        payrate: "30.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 0
       }
     ]);
   });
 
-  test("Alice can enter time and be awarded correct amount of shares", async () => {
+  test.only("Alice can enter time and be awarded correct amount of shares", async () => {
     const beforeBalance = await getBalance("alice", "CONT");
 
     await sendTransaction({
@@ -220,20 +219,20 @@ describe(`contract`, () => {
     expect(tableResult.rows).toEqual([
       {
         key: ALICE_NAME,
-        payrate: 25,
-        shares: 750000,
+        payrate: "25.0000 CONT",
+        earned: "75.0000 CONT",
         roleaccepted: 1
       },
       {
         key: BOB_NAME,
-        payrate: 30,
-        shares: 0,
+        payrate: "30.0000 CONT",
+        earned: "0.0000 CONT",
         roleaccepted: 0
       }
     ]);
   });
 
-  test("bob cannot enter time until he accepts role", async () => {
+  test.only("bob cannot enter time until he accepts role", async () => {
     expect.assertions(1);
     try {
       await sendTransaction({
@@ -253,7 +252,7 @@ describe(`contract`, () => {
     }
   });
 
-  test("bob can accept his role", async () => {
+  test.only("bob can accept his role", async () => {
     expect.assertions(1);
     await sendTransaction({
       name: "acceptrole",
@@ -267,13 +266,13 @@ describe(`contract`, () => {
     const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
       key: BOB_NAME,
-      payrate: 30,
-      shares: 0,
+      payrate: "30.0000 CONT",
+      earned: "0.0000 CONT",
       roleaccepted: 1
     });
   });
 
-  test("bob can enter time", async () => {
+  test.only("bob can enter time", async () => {
     const beforeBalance = await getBalance("bob", "CONT");
 
     expect.assertions(3);
@@ -291,13 +290,14 @@ describe(`contract`, () => {
     const afterBalance = await getBalance("bob", "CONT");
 
     expect(afterBalance).toBeGreaterThan(beforeBalance);
+    console.log({ beforeBalance, afterBalance })
     expect(afterBalance).toBe(beforeBalance + 135);
 
     const tableResult = await getTable("roles", CONTOSO_NAME);
     expect(tableResult.rows).toContainEqual({
       key: BOB_NAME,
-      payrate: 30,
-      shares: 1350000,
+      payrate: "30.0000 CONT",
+      shares: "135.0000 CONT",
       roleaccepted: 1
     });
   });

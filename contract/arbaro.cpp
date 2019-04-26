@@ -48,17 +48,24 @@ void arbaro::throwifnotorg(name org)
     eosio_assert(iterator != orgsdb.end(), "organisation does not exist");
 }
 
-void arbaro::createrole(name org, name worker, uint64_t payrate)
+void arbaro::createrole(name org, name worker, asset payrate)
 {
     require_auth(org);
-    throwifnotorg(org);
+    eosio_assert(payrate.symbol.is_valid(), "invalid payrate");
+
+    org_index orgsdb(_code, _code.value);
+    auto itr = orgsdb.find(org.value);
+    eosio_assert(itr != orgsdb.end(), "org does not exist");
+    
+    eosio_assert(itr->symbol == payrate.symbol, "pay does not match orgs token");
+    eosio_assert(payrate.amount > 0, "only positive quantity allowed");
 
     role_index rolesdb(_code, org.value);
     rolesdb.emplace(org, [&](auto &row) {
         row.key = worker;
         row.payrate = payrate;
         row.roleaccepted = false;
-        row.shares = 0;
+        row.earned = asset{0, itr->symbol};
     });
 };
 
@@ -88,7 +95,7 @@ void arbaro::claimtime(name worker, name org, double dechours, string notes)
     auto iterator2 = orgsdb.find(org.value);
     eosio_assert(iterator2 != orgsdb.end(), "org does not exist");
 
-    uint64_t reward = dechours * iterator->payrate * 10000;
+    asset reward = dechours * iterator->payrate;
     name cont = iterator2->tokencon;
     name issuer = iterator2->key;
 
@@ -96,11 +103,11 @@ void arbaro::claimtime(name worker, name org, double dechours, string notes)
         permission_level{issuer, "active"_n},
         iterator2->tokencon,
         "issue"_n,
-        std::make_tuple(iterator->key, asset(reward, iterator2->symbol), string("Work reward")))
+        std::make_tuple(iterator->key, reward, string("Work reward")))
         .send();
 
     rolesdb.modify(iterator, iterator->key, [&](auto &row) {
-        row.shares += reward;
+        row.earned += reward;
     });
 }
 

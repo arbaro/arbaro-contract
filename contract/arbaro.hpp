@@ -19,7 +19,7 @@ CONTRACT arbaro : public eosio::contract
 
     ACTION init(eosio::name name);
     ACTION testreset();
-    ACTION createrole(eosio::name org, eosio::name worker, uint64_t payrate);
+    ACTION createrole(eosio::name org, eosio::name worker, eosio::asset payrate);
     ACTION acceptrole(eosio::name worker, eosio::name org);
     ACTION claimtime(eosio::name worker, eosio::name org, double dechours, std::string notes);
     ACTION createorg(eosio::name owner, eosio::symbol tokensym, eosio::name tokencon, std::string friendlyname);
@@ -30,8 +30,8 @@ CONTRACT arbaro : public eosio::contract
     TABLE role
     {
         eosio::name key;
-        uint64_t payrate;
-        uint64_t shares;
+        eosio::asset payrate;
+        eosio::asset earned;
         bool roleaccepted;
 
         uint64_t primary_key() const { return key.value; }
