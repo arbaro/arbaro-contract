@@ -273,7 +273,7 @@ describe(`contract`, () => {
   });
 
   test("bob can enter time", async () => {
-    const beforeBalance = await getBalance("bob", "CONT");
+    const beforeBalance = await getBalance(BOB_NAME, "CONT");
 
     expect.assertions(3);
     await sendTransaction({
@@ -287,7 +287,7 @@ describe(`contract`, () => {
       actor: BOB_NAME
     });
 
-    const afterBalance = await getBalance("bob", "CONT");
+    const afterBalance = await getBalance(BOB_NAME, "CONT");
 
     expect(afterBalance).toBeGreaterThan(beforeBalance);
     expect(afterBalance).toBe(beforeBalance + 135);
